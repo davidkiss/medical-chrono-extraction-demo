@@ -1,0 +1,59 @@
+[project]
+name = "medical-chrono-extraction"
+version = "0.1.0"
+description = "Extract medical chronologies from legal documents using AI"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "langgraph>=1.1.3",
+    "langgraph-api>=0.7.87",
+    "langchain>=1.2.13",
+    "langchain-openai>=1.1.12",
+    "langchain-anthropic>=1.4.0",
+    "langchain-google-genai>=4.2.1",
+    "pypdf>=5.0.0",
+    "pydantic>=2.0.0",
+    "pandas>=2.0.0",
+    "langgraph-cli[inmem]>=0.4.18",
+    "python-dotenv>=1.2.2",
+    "langchain-community>=0.4.1",
+    "temporalio>=1.23.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "ruff>=0.4.0",
+    "mypy>=1.0.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["agent"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP"]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_ignores = true
+disallow_untyped_defs = true
+
+[dependency-groups]
+dev = [
+    "debugpy>=1.8.20",
+    "pytest-asyncio>=1.3.0",
+]

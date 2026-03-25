@@ -1,0 +1,98 @@
+{
+  "Comment": "Medical Chronology Extraction Workflow",
+  "StartAt": "LoadPdf",
+  "States": {
+    "LoadPdf": {
+      "Type": "Task",
+      "Resource": "${load_pdf_lambda_arn}",
+      "Parameters": {
+        "pdf_uri.$": "$.pdf_uri",
+        "output_bucket.$": "$.output_bucket"
+      },
+      "ResultPath": "$.chunk_uris",
+      "Next": "ExtractChunks"
+    },
+    "ExtractChunks": {
+      "Type": "Map",
+      "ItemsPath": "$.chunk_uris",
+      "MaxConcurrency": 50,
+      "Parameters": {
+        "chunk_uri.$": "$$.Map.Item.Value",
+        "pdf_path.$": "$.pdf_uri",
+        "output_bucket.$": "$.output_bucket"
+      },
+      "Iterator": {
+        "StartAt": "ExtractSingleChunk",
+        "States": {
+          "ExtractSingleChunk": {
+            "Type": "Task",
+            "Resource": "${extract_chunk_lambda_arn}",
+            "End": true,
+            "Retry": [
+              {
+                "ErrorEquals": ["Lambda.TooManyRequestsException", "Lambda.Unknown"],
+                "IntervalSeconds": 2,
+                "MaxAttempts": 3,
+                "BackoffRate": 2.0
+              }
+            ]
+          }
+        }
+      },
+      "ResultPath": "$.extraction_uris",
+      "Next": "GroupEvents"
+    },
+    "GroupEvents": {
+      "Type": "Task",
+      "Resource": "${group_events_lambda_arn}",
+      "Parameters": {
+        "extraction_uris.$": "$.extraction_uris",
+        "pdf_path.$": "$.pdf_uri",
+        "output_bucket.$": "$.output_bucket"
+      },
+      "ResultPath": "$.groups",
+      "Next": "DedupGroups"
+    },
+    "DedupGroups": {
+      "Type": "Map",
+      "ItemsPath": "$.groups",
+      "MaxConcurrency": 50,
+      "Parameters": {
+        "date.$": "$$.Map.Item.Value.date",
+        "group_uri.$": "$$.Map.Item.Value.group_uri",
+        "pdf_path.$": "$$.Map.Item.Value.pdf_path",
+        "output_bucket.$": "$.output_bucket"
+      },
+      "Iterator": {
+        "StartAt": "DedupSingleGroup",
+        "States": {
+          "DedupSingleGroup": {
+            "Type": "Task",
+            "Resource": "${dedup_group_lambda_arn}",
+            "End": true,
+            "Retry": [
+              {
+                "ErrorEquals": ["Lambda.TooManyRequestsException", "Lambda.Unknown"],
+                "IntervalSeconds": 2,
+                "MaxAttempts": 3,
+                "BackoffRate": 2.0
+              }
+            ]
+          }
+        }
+      },
+      "ResultPath": "$.deduped_uris",
+      "Next": "ExportCsv"
+    },
+    "ExportCsv": {
+      "Type": "Task",
+      "Resource": "${export_csv_lambda_arn}",
+      "Parameters": {
+        "deduped_uris.$": "$.deduped_uris",
+        "pdf_path.$": "$.pdf_uri",
+        "csv_output_uri.$": "$.csv_output_uri"
+      },
+      "End": true
+    }
+  }
+}

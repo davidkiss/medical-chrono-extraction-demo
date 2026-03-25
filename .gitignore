@@ -1,0 +1,25 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+
+# Secret/Config
+.env
+
+# IDE
+.vscode/
+
+# Environment
+.venv/
+
+# Caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# LangGraph state
+.langgraph_api/
+
+# Local artifacts
+output/
+langgraph-cache.db
+dist/

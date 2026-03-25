@@ -1,0 +1,9 @@
+{
+    "$schema": "https://langgra.ph/schema.json",
+    "dependencies": [
+        "."
+    ],
+    "graphs": {
+        "extraction": "agent.graph:create_extraction_graph"
+    }
+}
