@@ -1,46 +1,54 @@
 #!/bin/bash
-set -e
 
 # Configuration
-PROJECT_ROOT="$(pwd)"
-DIST_DIR="${PROJECT_ROOT}/dist"
-LAMBDA_BUNDLE="${DIST_DIR}/lambda_bundle.zip"
-LAYER_BUNDLE="${DIST_DIR}/lambda_layer.zip"
-CODE_DIR="${PROJECT_ROOT}/agent"
+PACKAGE_NAME="lambda_bundle.zip"
+BUILD_DIR="dist"
+ENTRY_POINT="agent" # Change this to your source code directory
 
-# 1. Prepare dist directory
-echo "Cleaning and preparing ${DIST_DIR}..."
-mkdir -p "${DIST_DIR}"
-rm -f "${LAMBDA_BUNDLE}" "${LAYER_BUNDLE}"
+# 1. Clean up previous builds
+echo "Cleaning up old build artifacts..."
+rm -rf $BUILD_DIR
 
-# 2. Package Lambda Code
-echo "Packaging Lambda code into ${LAMBDA_BUNDLE}..."
-# Use python's built-in zip to ensure file permissions are preserved
-# We want 'agent' to be at the root of the ZIP
-python3 -m zipfile -c "${LAMBDA_BUNDLE}" agent/
+# 2. Create a clean build directory
+mkdir $BUILD_DIR
 
-# 3. Package Lambda Layer (Dependencies)
-# We use 'uv' to compile and install dependencies for Lambda
-if command -v uv &> /dev/null; then
-    echo "Compiling dependencies for Lambda using uv..."
-    uv pip compile pyproject.toml --python-version 3.11 --python-platform x86_64-manylinux_2_17 --output-file "${DIST_DIR}/requirements.txt"
-    
-    echo "Installing dependencies into temporary folder..."
-    TEMP_LAYER_DIR="${DIST_DIR}/python_layer/python"
-    mkdir -p "${TEMP_LAYER_DIR}"
-    
-    # Install into the python/ folder as required by AWS Lambda Layer structure
-    pip install -r "${DIST_DIR}/requirements.txt" --target "${TEMP_LAYER_DIR}" --no-deps
-    
-    echo "Zipping layer..."
-    cd "${DIST_DIR}/python_layer"
-    zip -r "${LAYER_BUNDLE}" .
-    cd "${PROJECT_ROOT}"
-    
-    echo "Lambda Layer created at ${LAYER_BUNDLE}"
-else
-    echo "uv not found. Please install dependencies and create a layer manually or install uv."
-fi
+# 3. Export dependencies using uv
+# We export to requirements.txt format to ensure compatibility 
+# with the --target flag in pip.
+echo "Exporting dependencies..."
+uv export --format requirements-txt --output-file $BUILD_DIR/requirements.txt
 
-echo "Build complete!"
-echo "Function Bundle: ${LAMBDA_BUNDLE}"
+# 4. Install dependencies into the build directory
+# We use pip here because 'uv pip install' supports the --target flag
+# for creating standalone deployment folders.
+echo "Installing dependencies to $BUILD_DIR..."
+uv pip install -r $BUILD_DIR/requirements.txt --target $BUILD_DIR
+
+# 4b. Remove large unnecessary dependencies
+# These are only needed for the Temporal workflow option, not the AWS Lambdas.
+echo "Removing large unnecessary dependencies from $BUILD_DIR..."
+rm -rf $BUILD_DIR/temporalio
+rm -rf $BUILD_DIR/grpc
+rm -rf $BUILD_DIR/grpc_tools
+rm -rf $BUILD_DIR/grpcio*
+rm -rf $BUILD_DIR/debugpy # Not needed in production
+
+# 5. Copy application code into the build directory
+# Ensure your handler (e.g., lambda_function.py) is in the root of $BUILD_DIR
+echo "Copying source code..."
+cp -r $ENTRY_POINT/* $BUILD_DIR/
+
+# 6. Clean up __pycache__, .pyc, .pyo etc.
+echo "Cleaning up Python cache files..."
+find $BUILD_DIR -type d -name "__pycache__" -exec rm -rf {} +
+find $BUILD_DIR -type f -name "*.pyc" -delete
+find $BUILD_DIR -type f -name "*.pyo" -delete
+find $BUILD_DIR -type f -name "*.pyd" -delete # Optional, but can save space
+
+# 6. Create the ZIP bundle
+echo "Creating $PACKAGE_NAME..."
+cd $BUILD_DIR
+zip -r $PACKAGE_NAME .
+cd ..
+
+echo "Build complete: $PACKAGE_NAME"

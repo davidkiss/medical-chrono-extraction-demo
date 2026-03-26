@@ -107,7 +107,7 @@ chmod +x scripts/build_lambda.sh
 Deploy the S3 buckets, Lambdas, IAM roles, and the Step Function using Terragrunt:
 ```bash
 cd infra/live/dev
-terragrunt run-all apply
+terragrunt apply
 ```
 
 ### 3. Trigger an Extraction

@@ -14,8 +14,9 @@ dependency "s3" {
 inputs = {
   function_name = "medical-chrono-extract-chunk-dev"
   handler       = "agent.aws.lambdas.extract_chunk.handler"
-  source_path   = "${get_parent_terragrunt_dir()}/../dist/lambda_bundle.zip"
+  source_path   = "${get_parent_terragrunt_dir()}/../../../dist/lambda_bundle.zip"
   s3_bucket_arn = dependency.s3.outputs.bucket_arn
+  s3_bucket     = dependency.s3.outputs.bucket_id
   enable_bedrock = true
   
   environment_variables = {

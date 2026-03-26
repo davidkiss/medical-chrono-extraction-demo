@@ -8,6 +8,6 @@ terraform {
 }
 
 inputs = {
-  bucket_name = "medical-chronology-dev"
+  bucket_name = "medical-chronology-dev-dk-2026"
   environment = "dev"
 }

@@ -1,4 +1,6 @@
 # Global Terragrunt settings
+download_dir = "${get_repo_root()}/.terragrunt-cache"
+
 generate "provider" {
   path      = "provider.tf"
   if_exists = "overwrite_terragrunt"

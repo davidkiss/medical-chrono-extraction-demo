@@ -44,6 +44,18 @@ variable "source_path" {
   type        = string
 }
 
+variable "s3_bucket" {
+  description = "S3 bucket name for Lambda code storage"
+  type        = string
+  default     = ""
+}
+
+variable "s3_key" {
+  description = "S3 key for Lambda code storage"
+  type        = string
+  default     = ""
+}
+
 variable "s3_bucket_arn" {
   description = "ARN of the S3 bucket the Lambda needs access to"
   type        = string
