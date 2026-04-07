@@ -6,9 +6,50 @@ AI workflow for extracting structured medical events from complex legal and medi
 
 This project provides three ways to run the medical chronology extraction:
 
-1.  **LangGraph**: Best for low-latency, stateless local runs and interactive development.
-2.  **Temporal**: Best for large PDF files, long-running extractions, and production environments where fault tolerance and observability are critical.
-3.  **AWS Step Functions**: Best for high-scale, serverless extractions using Amazon Bedrock without managing any infrastructure or API keys.
+1.  **LangGraph**: LangGraph is ideal for applications requiring AI agents to reason, plan, self-correct, and act autonomously, particularly when the workflow is conversational or cyclic.
+2.  **Temporal**: Temporal is a "durable execution" engine, best for reliable, high-scale automation where workflows may run for minutes, hours, or months, requiring guaranteed completion despite infrastructure failures.
+3.  **AWS Step Functions**: Step Functions is a visual state machine best suited for high-scale, serverless, event-driven architectures, particularly within the AWS ecosystem.
+
+---
+
+## 🎯 Choosing the Right Workflow Engine
+
+### 1. LangGraph: Agentic AI & Human-in-the-Loop
+
+**Best Use Cases:**
+
+- **Complex Multi-Agent Systems**: Coordinating specialized agents (e.g., a "researcher" agent + "writer" agent + "critic" agent) that need to pass state back and forth
+- **Conversational AI with Memory**: Building chatbots that require long-term memory across sessions, context management, and complex branching logic
+- **Human-in-the-Loop (HITL)**: Scenarios where AI requires human approval or intervention to fix state (e.g., automated document editor with human review)
+- **Self-Correcting Flows**: A loop where an agent proposes a solution, an evaluator critiques it, and it iterates until the quality requirement is met
+
+**Why**: LangGraph offers cyclical graphs, persistent state, and deep integration with LangChain.
+
+---
+
+### 2. Temporal.io: Durable, Long-Running AI Agents
+
+**Best Use Cases:**
+
+- **Long-Running & Durable Agents**: Agents that need to wait for asynchronous external events (e.g., waiting 48 hours for a customer email reply)
+- **Reliable Batch Processing**: Orchestrating thousands of LLM calls, handling automatic retries, rate limits, and compensation logic on failures
+- **Multi-Cloud/Hybrid AI**: Orchestrating workflows that span on-premise infrastructure and multiple cloud providers
+- **Mission-Critical Data Pipelines**: Using LLMs to process data, update databases, and manage state in real-time, such as content processing or data enrichment for LLMs
+
+**Why**: Temporal allows code-first development (Python/TypeScript) and guarantees that a workflow resumes exactly where it left off after a crash.
+
+---
+
+### 3. AWS Step Functions: AWS-Native Serverless Orchestration
+
+**Best Use Cases:**
+
+- **Prompt Chaining in AWS**: Sequentially invoking Lambda functions, Bedrock models, or other services to process data
+- **Visual Data Engineering (ETL)**: Creating, monitoring, and debugging complex ETL pipelines using Glue, Batch, and Lambda
+- **AI/MLOps Pipelines**: Preprocessing data, training SageMaker models, and deploying them, with visual auditing for security and compliance
+- **High-Volume/Express Workflows**: Short-duration, high-volume tasks (e.g., processing real-time user-uploaded files)
+
+**Why**: Step Functions natively integrates with over 220 AWS services, provides visual debugging, and requires minimal infrastructure management.
 
 ---
 
