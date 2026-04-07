@@ -142,14 +142,18 @@ def single_event() -> list[MedChronoEvent]:
     ]
 
 
-@patch("src.nodes.dedup.get_llm_client")
+@patch("agent.nodes.dedup.get_structured_llm")
 def test_dedup_removes_duplicates(
     mock_get_llm_client: MagicMock, sample_events_same_date: list[MedChronoEvent]
 ) -> None:
     """Test that deduplication removes duplicate events."""
     # Mock LLM to return duplicate groups
+    from agent.models import DedupResult
     mock_llm = MagicMock()
-    mock_llm.invoke.return_value = MagicMock(content='[["evt_001", "evt_002"]]')
+    mock_llm.invoke.return_value = DedupResult(
+        duplicate_groups=[["evt_001", "evt_002"]],
+        group_reasonings=["Same event"]
+    )
     mock_get_llm_client.return_value = mock_llm
 
     deduped = deduplicate_events_by_date(sample_events_same_date)
@@ -168,14 +172,18 @@ def test_dedup_keeps_unique_events_different_dates(
     assert "evt_002" in event_ids
 
 
-@patch("src.nodes.dedup.get_llm_client")
+@patch("agent.nodes.dedup.get_structured_llm")
 def test_dedup_keeps_unique_events_same_date(
     mock_get_llm_client: MagicMock, sample_events_unique_same_date: list[MedChronoEvent]
 ) -> None:
     """Test that unique events on same date are kept."""
     # Mock LLM to return empty duplicate groups (no duplicates)
+    from agent.models import DedupResult
     mock_llm = MagicMock()
-    mock_llm.invoke.return_value = MagicMock(content="[]")
+    mock_llm.invoke.return_value = DedupResult(
+        duplicate_groups=[],
+        group_reasonings=[]
+    )
     mock_get_llm_client.return_value = mock_llm
 
     deduped = deduplicate_events_by_date(sample_events_unique_same_date)
@@ -198,14 +206,18 @@ def test_dedup_empty_list() -> None:
     assert len(deduped) == 0
 
 
-@patch("src.nodes.dedup.get_llm_client")
+@patch("agent.nodes.dedup.get_structured_llm")
 def test_dedup_preserves_event_data(
     mock_get_llm_client: MagicMock, sample_events_same_date: list[MedChronoEvent]
 ) -> None:
     """Test that preserved event data is unchanged."""
     # Mock LLM to return duplicate groups
+    from agent.models import DedupResult
     mock_llm = MagicMock()
-    mock_llm.invoke.return_value = MagicMock(content='[["evt_001", "evt_002"]]')
+    mock_llm.invoke.return_value = DedupResult(
+        duplicate_groups=[["evt_001", "evt_002"]],
+        group_reasonings=["Same event"]
+    )
     mock_get_llm_client.return_value = mock_llm
 
     deduped = deduplicate_events_by_date(sample_events_same_date)
