@@ -44,7 +44,7 @@ def handler(event: Dict[str, Any], context: Any) -> List[Dict[str, str]]:
     print(f"Saving {len(groups)} date groups to S3...")
     for date, date_events in groups.items():
         # Sanitize date for filename
-        safe_date = date.replace("/", "-").replace(" ", "_")
+        safe_date = date.replace("/", "-").replace(" ", "_") if date is not None else "N/A"
         group_key = f"intermediate/{pdf_filename}/groups/{safe_date}.json"
         group_uri = f"s3://{output_bucket}/{group_key}"
         

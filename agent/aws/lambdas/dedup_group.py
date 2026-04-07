@@ -1,8 +1,8 @@
 import os
 from typing import Any, Dict
 from agent.models import MedChronoEvent
-from agent.nodes.dedup import deduplicate_single_date_group
 from agent.aws.s3_utils import load_json_from_s3, save_json_to_s3, parse_s3_uri
+from agent.aws.secrets_utils import get_google_api_key
 
 def handler(event: Dict[str, Any], context: Any) -> str:
     """
@@ -16,6 +16,9 @@ def handler(event: Dict[str, Any], context: Any) -> str:
         "output_bucket": "bucket-name" (optional)
     }
     """
+    os.environ["GOOGLE_API_KEY"] = get_google_api_key()
+    from agent.nodes.dedup import deduplicate_single_date_group
+
     date = event['date']
     group_uri = event['group_uri']
     pdf_path = event['pdf_path']
@@ -33,7 +36,7 @@ def handler(event: Dict[str, Any], context: Any) -> str:
     
     # 3. Save deduped results back to S3
     pdf_filename = os.path.basename(pdf_path)
-    safe_date = date.replace("/", "-").replace(" ", "_")
+    safe_date = date.replace("/", "-").replace(" ", "_") if date is not None else "N/A"
     deduped_key = f"intermediate/{pdf_filename}/deduped/{safe_date}.json"
     deduped_uri = f"s3://{output_bucket}/{deduped_key}"
     

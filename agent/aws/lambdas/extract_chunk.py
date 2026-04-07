@@ -1,8 +1,9 @@
 import os
 from typing import Any, Dict
-from agent.models import ChunkData, MedChronoEvent
-from agent.nodes.extract import extract_events
+from agent.models import ChunkData
 from agent.aws.s3_utils import load_json_from_s3, save_json_to_s3, parse_s3_uri
+from agent.aws.secrets_utils import get_google_api_key
+
 
 def handler(event: Dict[str, Any], context: Any) -> str:
     """
@@ -15,6 +16,9 @@ def handler(event: Dict[str, Any], context: Any) -> str:
         "output_bucket": "bucket-name" (optional)
     }
     """
+    os.environ["GOOGLE_API_KEY"] = get_google_api_key()
+    from agent.nodes.extract import extract_events
+
     chunk_uri = event['chunk_uri']
     pdf_path = event['pdf_path']
     bucket, key = parse_s3_uri(chunk_uri)

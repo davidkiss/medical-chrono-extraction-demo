@@ -67,6 +67,12 @@ variable "enable_bedrock" {
   default     = false
 }
 
+variable "enable_secrets_manager" {
+  description = "Whether to grant Secrets Manager access to this Lambda"
+  type        = bool
+  default     = false
+}
+
 variable "tags" {
   description = "A map of tags to add to all resources"
   type        = map(string)

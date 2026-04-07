@@ -16,14 +16,17 @@ def get_llm_client(use_cache: bool = True, with_retry: bool = True) -> BaseChatM
     Uses MAX_TOKENS env var for max tokens (default: 20000).
     Uses 'langgraph-cache.db' for disk-based LLM call caching.
     """
-    cache = SQLiteCache("langgraph-cache.db")
-    
+    cache_path = os.getenv("LLM_CACHE_PATH", "/tmp/langgraph-cache.db")
+    cache = SQLiteCache(cache_path)
+
     llm = init_chat_model(
         model=os.getenv("LLM_MODEL"),
         temperature=float(os.getenv("LLM_TEMPERATURE", 0.0)),
         timeout=float(os.getenv("REQUEST_TIMEOUT", 300)),
         max_tokens=int(os.getenv("MAX_TOKENS", 20000)),
-        cache=cache if use_cache else None, # cache LLM output to save costs and time when reprocessing same doc
+        cache=cache
+        if use_cache
+        else None,  # cache LLM output to save costs and time when reprocessing same doc
     )
     if with_retry:
         llm = llm.with_retry(stop_after_attempt=int(os.getenv("MAX_RETRIES", 3)))

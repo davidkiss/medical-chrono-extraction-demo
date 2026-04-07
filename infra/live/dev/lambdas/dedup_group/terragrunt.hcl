@@ -18,10 +18,12 @@ inputs = {
   s3_bucket_arn = dependency.s3.outputs.bucket_arn
   s3_bucket     = dependency.s3.outputs.bucket_id
   enable_bedrock = true
+  enable_secrets_manager = true
   
   environment_variables = {
-    LLM_MODEL = "anthropic.claude-3-5-sonnet-20240620-v1:0"
+    LLM_MODEL = "google_genai:gemini-3-flash-preview"
     LLM_TEMPERATURE = "0.0"
     MAX_RETRIES = "3"
+    GOOGLE_API_KEY_SECRET_ID = "medical-chrono/google-api-key"
   }
 }

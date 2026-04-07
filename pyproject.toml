@@ -5,19 +5,15 @@ description = "Extract medical chronologies from legal documents using AI"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "langgraph>=1.1.3",
-    "langgraph-api>=0.7.87",
     "langchain>=1.2.13",
+    "langchain-community>=0.4.1",
     "langchain-openai>=1.1.12",
     "langchain-anthropic>=1.4.0",
     "langchain-google-genai>=4.2.1",
     "pypdf>=5.0.0",
     "pydantic>=2.0.0",
     "pandas>=2.0.0",
-    "langgraph-cli[inmem]>=0.4.18",
     "python-dotenv>=1.2.2",
-    "langchain-community>=0.4.1",
-    "temporalio>=1.23.0",
 ]
 
 [project.optional-dependencies]
@@ -56,4 +52,17 @@ disallow_untyped_defs = true
 dev = [
     "debugpy>=1.8.20",
     "pytest-asyncio>=1.3.0",
+]
+langgraph = [
+    "langgraph>=1.1.3",
+    "langgraph-api>=0.7.87",
+    "langgraph-cli[inmem]>=0.4.18",
+    "langgraph-sdk>=0.1.0",
+]
+temporal = [
+    "temporalio>=1.23.0",
+]
+stepfunctions = [
+    "langchain-aws>=1.4.2",
+    "boto3>=1.34.0",
 ]

@@ -24,8 +24,18 @@ def handler(event: Dict[str, Any], context: Any) -> List[str]:
     local_path = f"/tmp/{os.path.basename(key)}"
     
     # 1. Download PDF
-    print(f"Downloading {pdf_uri} to {local_path}...")
-    s3_client.download_file(bucket, key, local_path)
+    print(f"Downloading s3://{bucket}/{key} to {local_path}...")
+    try:
+        s3_client.download_file(bucket, key, local_path)
+    except Exception as e:
+        print(f"Error downloading file: {str(e)}")
+        # Check if bucket exists and role has access
+        try:
+            s3_client.head_bucket(Bucket=bucket)
+            print("Bucket access confirmed.")
+        except Exception as bucket_err:
+            print(f"Cannot access bucket: {str(bucket_err)}")
+        raise e
     
     # 2. Load and Chunk
     print("Loading and chunking PDF...")

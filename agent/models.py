@@ -7,8 +7,7 @@ from typing import Literal
 from pydantic import BaseModel, Field
 
 
-@dataclass
-class ChunkData:
+class ChunkData(BaseModel):
     """Represents a PDF chunk for processing."""
 
     chunk_id: int
