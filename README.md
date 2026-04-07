@@ -170,21 +170,37 @@ aws stepfunctions start-execution \
 
 ```text
 ├── agent/
-│   ├── graph.py           # LangGraph state machine definition
-│   ├── temporal/          # Temporal-specific orchestration
-│   ├── aws/               # AWS Step Functions & Lambda handlers
-│   │   ├── lambdas/       # Individual Lambda function entrypoints
-│   │   └── s3_utils.py    # AWS S3 helper functions
-│   ├── nodes/             # Core AI logic (shared by all engines)
-│   ├── llm/               # Provider abstraction & prompts
-│   ├── models.py          # Structured Pydantic data models
-│   └── utils/             # PDF loading helpers
-├── infra/                 # IaC for AWS Step Functions
-│   ├── live/              # Terragrunt environment configurations
-│   └── modules/           # Reusable Terraform modules (Lambdas, S3, Step Functions)
-├── tests/                 # Comprehensive test suite
-├── scripts/               # Build and deployment utilities
-└── docker-compose.yml     # Infrastructure for Temporal
+│   ├── graph.py              # LangGraph state machine definition
+│   ├── models.py             # Structured Pydantic data models
+│   ├── aws/                  # AWS Step Functions & Lambda handlers
+│   │   ├── lambdas/          # Individual Lambda function entrypoints
+│   │   └── s3_utils.py       # AWS S3 helper functions
+│   ├── llm/                  # Provider abstraction & prompts
+│   ├── nodes/                # Core AI logic (shared by all engines)
+│   ├── temporal/             # Temporal-specific orchestration
+│   │   ├── activities.py     # Temporal activity definitions
+│   │   ├── workflow.py       # Temporal workflow definition
+│   │   ├── worker.py         # Temporal worker implementation
+│   │   └── run_workflow.py   # Workflow runner script
+│   └── utils/                # PDF loading and utility helpers
+├── infra/                    # Infrastructure as Code (Terraform + Terragrunt)
+│   ├── live/                 # Terragrunt environment configurations
+│   │   └── dev/              # Development environment
+│   └── modules/              # Reusable Terraform modules
+│       ├── lambda/           # Lambda function module
+│       ├── s3/               # S3 bucket module
+│       └── step_function/    # Step Function module
+├── tests/                    # Comprehensive test suite
+│   ├── samples/              # Test PDF samples
+│   ├── temporal/             # Temporal-specific tests
+│   ├── test_*.py             # Unit and integration tests
+├── scripts/                  # Build and deployment utilities
+│   └── build_lambda.sh       # Lambda package build script
+├── samples/                  # Sample medical PDF documents
+├── .env.example              # Environment variables template
+├── pyproject.toml            # Python project configuration (uv)
+├── langgraph.json            # LangGraph CLI configuration
+└── docker-compose.yml        # Docker Compose for local infrastructure
 ```
 
 ## 🧪 Running Tests
