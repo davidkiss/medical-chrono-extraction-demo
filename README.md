@@ -135,23 +135,34 @@ uv run python agent/temporal/run_workflow.py --pdf samples/sample-medical-chrono
 
 ## ☁️ Workflow 3: AWS Step Functions (Serverless)
 
-The AWS engine uses **Amazon Step Functions** to orchestrate modular **AWS Lambda** functions. It leverages **Amazon Bedrock** (Anthropic Claude/Google Gemini models) for AI processing, eliminating the need for external API keys and managing server infrastructure.
+The AWS engine uses **Amazon Step Functions** to orchestrate modular **AWS Lambda** functions. It leverages Google Gemini for AI processing, eliminating the need for external API keys and managing server infrastructure.
 
-### 1. Build Lambda Packages
+### 1. Configure AWS Secrets Manager
+Create a secret in AWS Secrets Manager to store your LLM API key. The Lambda functions will use this to authenticate with the LLM provider's API, e.g. Google Gemini:
+
+```bash
+aws secretsmanager create-secret \
+  --name medical-chrono/llm-api-key \
+  --secret-string '{"key": "GOOGLE_API_KEY", "value":"your-actual-google-api-key"}'
+```
+
+The secret name and key structure (`medical-chrono/llm-api-key` with a `key` and `value` keys) are expected by the Lambda functions.
+
+### 2. Build Lambda Packages
 Use the build script to bundle the Python code and its dependencies into ZIP files (one for code, one for the Lambda Layer):
 ```bash
 chmod +x scripts/build_lambda.sh
 ./scripts/build_lambda.sh
 ```
 
-### 2. Deploy Infrastructure
+### 3. Deploy Infrastructure
 Deploy the S3 buckets, Lambdas, IAM roles, and the Step Function using Terragrunt:
 ```bash
 cd infra/live/dev
 terragrunt apply-all
 ```
 
-### 3. Trigger an Extraction
+### 4. Trigger an Extraction
 You can trigger the workflow via the AWS Console or using the AWS CLI:
 ```bash
 aws stepfunctions start-execution \

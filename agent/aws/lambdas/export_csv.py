@@ -35,7 +35,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     # 2. Flatten and convert to dictionaries for CSV
     all_events: list[MedChronoEvent] = []
     for events_list in all_events_nested:
-        all_events.extend(events_list)
+        all_events.extend([MedChronoEvent(**e) for e in events_list])
 
     print(f"Total deduplicated events: {len(all_events)}")
 

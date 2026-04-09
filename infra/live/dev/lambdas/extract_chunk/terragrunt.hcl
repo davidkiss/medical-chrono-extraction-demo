@@ -24,6 +24,6 @@ inputs = {
     LLM_MODEL = "google_genai:gemini-3-flash-preview"
     LLM_TEMPERATURE = "0.0"
     MAX_RETRIES = "3"
-    GOOGLE_API_KEY_SECRET_ID = "medical-chrono/google-api-key"
+    LLM_API_KEY_SECRET_ID = "medical-chrono/llm-api-key"
   }
 }

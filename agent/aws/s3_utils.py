@@ -27,5 +27,4 @@ def load_json_from_s3(uri: str) -> MedChronoEvent:
     """Load JSON data from S3."""
     bucket, key = parse_s3_uri(uri)
     response = s3.get_object(Bucket=bucket, Key=key)
-    event_dicts = json.loads(response['Body'].read().decode('utf-8'))
-    return [MedChronoEvent(**event_dict) for event_dict in event_dicts]
+    return json.loads(response['Body'].read().decode('utf-8'))
